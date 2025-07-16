@@ -1,12 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using CommunityEventHub.Data;
 using CommunityEventHub.DAL;
-using CommunityEventHub.Services;
-using CommunityEventHub.Models.Dto;
+using CommunityEventHub.Data;
 using CommunityEventHub.Mapper;
+using CommunityEventHub.Models.Dto;
+using CommunityEventHub.Services;
 using CommunityEventHub.Validators;
-
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 
 namespace CommunityEventHub;
 
@@ -28,7 +27,18 @@ public class Program
         builder.Services.AddScoped<IEventRepository, EventRepository>();
         builder.Services.AddScoped<EventService>();
         builder.Services.AddScoped<IValidator<CreateEventDto>, CreateEventDtoValidator>();
-
+        builder.Services.AddScoped<IEventRegistrationRepository, EventRegistrationRepository>();
+        builder.Services.AddScoped<EventRegistrationService>();
+        builder.Services.AddScoped<IValidator<CreateEventRegistrationDto>, CreateEventRegistrationDtoValidator>();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("ReactAppPolicy",
+                builder => builder
+                    .WithOrigins("http://localhost:4000") // Your React app URL
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+        });
 
         // הוספת קונטרולרים ו-Swagger
         builder.Services.AddControllers();
@@ -45,7 +55,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
+        app.UseCors("ReactAppPolicy");
         app.UseAuthorization();
 
         app.MapControllers();

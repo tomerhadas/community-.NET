@@ -4,6 +4,7 @@ using CommunityEventHub.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CommunityEventHub.Migrations
 {
     [DbContext(typeof(CommunityEventHubContext))]
-    partial class CommunityEventHubContextModelSnapshot : ModelSnapshot
+    [Migration("20250716163055_SetDefaultStatusInRegistration")]
+    partial class SetDefaultStatusInRegistration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

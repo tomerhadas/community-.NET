@@ -25,6 +25,10 @@ public class Program
         builder.Services.AddScoped<UserService>();
         builder.Services.AddScoped<IValidator<CreateUserDto>, CreateUserDtoValidator>();
         builder.Services.AddAutoMapper(typeof(MappingProfile)); // AutoMapper configuration
+        builder.Services.AddScoped<IEventRepository, EventRepository>();
+        builder.Services.AddScoped<EventService>();
+        builder.Services.AddScoped<IValidator<CreateEventDto>, CreateEventDtoValidator>();
+
 
         // הוספת קונטרולרים ו-Swagger
         builder.Services.AddControllers();

@@ -10,7 +10,9 @@ namespace CommunityEventHub.Mapper
         {
             CreateMap<User, UserDto>();
             CreateMap<CreateUserDto, User>();
-            // Add more mappings here...
+            CreateMap<EventBase, EventDto>();
+            CreateMap<CreateEventDto, EventBase>()
+                .ForMember(dest => dest.EventRegistrations, opt => opt.Ignore());
         }
     }
 }

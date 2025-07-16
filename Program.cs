@@ -1,5 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using CommunityEventHub.Data;
+using CommunityEventHub.DAL;
+using CommunityEventHub.Services;
+using CommunityEventHub.Models.Dto;
+using CommunityEventHub.Mapper;
+using CommunityEventHub.Validators;
+
+using FluentValidation;
 
 namespace CommunityEventHub;
 
@@ -13,9 +20,14 @@ public class Program
         builder.Services.AddDbContext<CommunityEventHubContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-        // Add services to the container.
+        // Register dependencies (Repositories, Services, AutoMapper)
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<UserService>();
+        builder.Services.AddScoped<IValidator<CreateUserDto>, CreateUserDtoValidator>();
+        builder.Services.AddAutoMapper(typeof(MappingProfile)); // AutoMapper configuration
+
+        // הוספת קונטרולרים ו-Swagger
         builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -31,7 +43,6 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 

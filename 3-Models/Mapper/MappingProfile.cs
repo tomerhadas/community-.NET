@@ -8,6 +8,11 @@ namespace CommunityEventHub.Mapper
     {
         public MappingProfile()
         {
+            CreateMap<CreateEventDto, Meetup>();
+            CreateMap<CreateEventDto, Webinar>();
+            CreateMap<CreateEventDto, Conference>();
+            CreateMap<CreateEventDto, JobFair>();
+            CreateMap<EventBase, EventDto>();
             CreateMap<User, UserDto>();
             CreateMap<CreateUserDto, User>();
             CreateMap<EventBase, EventDto>();

@@ -1,44 +1,40 @@
-﻿using CommunityEventHub.Models.Dto;
+﻿using CommunityEventHub.Controllers.Base;
+using CommunityEventHub.Models.Dto;
 using CommunityEventHub.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CommunityEventHub.Controllers;
 
-[ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class UsersController : CRUDControllerBase<UserDto, CreateUserDto, UserService, int>
 {
     private readonly UserService _userService;
-    private readonly IValidator<CreateUserDto> _validator;
 
     public UsersController(UserService userService, IValidator<CreateUserDto> validator)
+        : base(userService, validator)
     {
         _userService = userService;
-        _validator = validator;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public override async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAllAsync();
         return Ok(users);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public override async Task<IActionResult> GetById(int id)
     {
         var user = await _userService.GetByIdAsync(id);
         if (user == null) return NotFound($"User with id {id} not found");
         return Ok(user);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateUserDto dto)
+    public override async Task<IActionResult> Create([FromBody] CreateUserDto dto)
     {
-        var result = _validator.Validate(dto);
-        if (!result.IsValid)
-            return BadRequest(result.Errors.Select(e => e.ErrorMessage));
+        var validationResult = ValidateDto(dto);
+        if (validationResult != null)
+            return validationResult;
 
         try
         {
@@ -53,20 +49,18 @@ public class UsersController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] CreateUserDto dto)
+    public override async Task<IActionResult> Update(int id, [FromBody] CreateUserDto dto)
     {
-        var result = _validator.Validate(dto);
-        if (!result.IsValid)
-            return BadRequest(result.Errors.Select(e => e.ErrorMessage));
+        var validationResult = ValidateDto(dto);
+        if (validationResult != null)
+            return validationResult;
 
         var updated = await _userService.UpdateAsync(id, dto);
         if (updated == null) return NotFound($"User with id {id} not found");
         return Ok(updated);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public override async Task<IActionResult> Delete(int id)
     {
         var deleted = await _userService.DeleteAsync(id);
         if (!deleted) return NotFound($"User with id {id} not found");

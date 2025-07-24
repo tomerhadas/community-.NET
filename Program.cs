@@ -39,6 +39,19 @@ public class Program
                     .AllowAnyHeader()
                     .AllowCredentials());
         });
+        // In your .NET backend (Program.cs or Startup.cs)
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials();
+            });
+        });
+
+        // Use the CORS policy
 
         // הוספת קונטרולרים ו-Swagger
         builder.Services.AddControllers();

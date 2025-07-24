@@ -1,67 +1,82 @@
-﻿using CommunityEventHub.Models.Dto;
+﻿using CommunityEventHub.Controllers.Base;
+using CommunityEventHub.Models.Dto;
 using CommunityEventHub.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CommunityEventHub.Controllers
+namespace CommunityEventHub.Controllers;
+
+[Route("api/[controller]")]
+public class EventsController : CRUDControllerBase<EventDto, CreateEventDto, EventService, int>
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class EventsController : ControllerBase
+    private readonly EventService _eventService;
+
+    public EventsController(EventService eventService, IValidator<CreateEventDto> validator)
+        : base(eventService, validator)
     {
-        private readonly EventService _eventService;
-        private readonly IValidator<CreateEventDto> _validator;
+        _eventService = eventService;
+    }
 
-        public EventsController(EventService eventService, IValidator<CreateEventDto> validator)
+    public override async Task<IActionResult> GetAll()
+    {
+        var events = await _eventService.GetAllAsync();
+        return Ok(events);
+    }
+
+    public override async Task<IActionResult> GetById(int id)
+    {
+        var ev = await _eventService.GetByIdAsync(id);
+        if (ev == null) return NotFound($"Event with id {id} not found");
+        return Ok(ev);
+    }
+
+    public override async Task<IActionResult> Create([FromBody] CreateEventDto dto)
+    {
+        var validationResult = ValidateDto(dto);
+        if (validationResult != null)
+            return validationResult;
+
+        try
         {
-            _eventService = eventService;
-            _validator = validator;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var events = await _eventService.GetAllAsync();
-            return Ok(events);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var ev = await _eventService.GetByIdAsync(id);
-            if (ev == null) return NotFound($"Event with id {id} not found");
-            return Ok(ev);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateEventDto dto)
-        {
-            var result = _validator.Validate(dto);
-            if (!result.IsValid)
-                return BadRequest(result.Errors.Select(e => e.ErrorMessage));
-
             var createdEvent = await _eventService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = createdEvent.Id }, createdEvent);
         }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] CreateEventDto dto)
+        catch (ArgumentException ex)
         {
-            var result = _validator.Validate(dto);
-            if (!result.IsValid)
-                return BadRequest(result.Errors.Select(e => e.ErrorMessage));
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
 
+    public override async Task<IActionResult> Update(int id, [FromBody] CreateEventDto dto)
+    {
+        var validationResult = ValidateDto(dto);
+        if (validationResult != null)
+            return validationResult;
+
+        try
+        {
             var updated = await _eventService.UpdateAsync(id, dto);
             if (updated == null) return NotFound($"Event with id {id} not found");
             return Ok(updated);
         }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        catch (ArgumentException ex)
         {
-            var deleted = await _eventService.DeleteAsync(id);
-            if (!deleted) return NotFound($"Event with id {id} not found");
-            return NoContent();
+            return BadRequest(ex.Message);
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    public override async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _eventService.DeleteAsync(id);
+        if (!deleted) return NotFound($"Event with id {id} not found");
+        return NoContent();
     }
 }

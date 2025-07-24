@@ -2,21 +2,20 @@
 
 #nullable disable
 
-namespace CommunityEventHub.Migrations
+namespace CommunityEventHub.Migrations;
+
+/// <inheritdoc />
+public partial class SetDefaultStatusInRegistration : Migration
 {
     /// <inheritdoc />
-    public partial class SetDefaultStatusInRegistration : Migration
+    protected override void Up(MigrationBuilder migrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
 
-        }
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder migrationBuilder)
+    {
 
-        }
     }
 }
